@@ -27,6 +27,7 @@ export function useWeather(initialQuery: string) {
           setSelectedDate(ok ?? null);
         } else {
           setError(res.error);
+          setData(null);
         }
       })
       .finally(() => setLoading(false));

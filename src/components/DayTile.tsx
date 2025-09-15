@@ -9,7 +9,8 @@ interface DayTileProps {
 const DayTile = ({ day, active, onClick }: DayTileProps) => {
   return (
     <div
-      className={`flex flex-col items-center mt-4 p-4 space-y-2 rounded-xl cursor-pointer hover:bg-[#507487]
+      data-testid="day-tile"
+      className={`flex flex-col items-center mt-4 p-4 space-y-2 rounded-xl cursor-pointer transition-all duration-300 ease-in-out hover:bg-[#507487]
         ${active ? "bg-[#507487] text-white shadow-lg scale-105" : ""}`}
       onClick={onClick}
     >

@@ -1,3 +1,13 @@
+  export type Success<T> = { 
+    ok: true, 
+    data: T 
+  };
+
+  export type Error = { 
+    ok: false, 
+    error: string 
+  };
+  
   export type WeatherCondition = {
     text?: string;
     icon?: string;
@@ -15,6 +25,7 @@
     historical?: Record<string, DaySummary>;
     forecast?: Record<string, DaySummary>;
     current?: CurrentWeather;
+    error?: Error;
   }
   
   export type CurrentWeather = {

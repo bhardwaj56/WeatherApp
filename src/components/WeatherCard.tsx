@@ -14,7 +14,7 @@ const WeatherCard = ({ data, weather, selectedDate, onSetSelectedDate }: Weather
   if (!data || !data.location || !weather) return null;
 
   return (
-    <div className="min-w-xs w-auto h-full p-4 mt-6 border-2 rounded-lg bg-[#103242] border-[#507487]">
+    <div data-testid="weather-card" className="min-w-xs w-auto h-full p-4 mt-6 border-2 rounded-lg bg-[#103242] border-[#507487]">
       <h2 className="font-semibold text-center text-lg sm:text-xl xl:text-2xl">{data.location}</h2>
       <div className="cursor-pointer flex flex-col sm:flex-row justify-between items-center m-4 gap-4">
         <div className="flex flex-col items-center">
@@ -31,6 +31,9 @@ const WeatherCard = ({ data, weather, selectedDate, onSetSelectedDate }: Weather
           {Math.round(weather.avgtemp)}°C
         </p>
         <div className="flex flex-col items-center sm:items-start font-normal text-sm sm:text-base xl:text-lg">
+          <p className="text-gray-400">
+            {weather.date}, {new Date(weather.date).toLocaleDateString(undefined, { weekday: "short" })}
+          </p>
           <p className="text-gray-400">
             Wind: {weather.wind} kmph
           </p>

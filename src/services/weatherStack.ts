@@ -1,12 +1,16 @@
-import type { DaySummary, CombinedWeather, Weather } from "../types";
+import type {
+  DaySummary,
+  CombinedWeather,
+  Weather,
+  Success,
+  Error,
+} from "../types";
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL;
 
 const fmtDate = (d: Date) => d.toISOString().slice(0, 10);
 
-type Success<T> = { ok: true, data: T };
-type Error = { ok: false, error: string };
 type WSCurrent = Weather;
 type WSForecast = Weather;
 type WSHistorical = Weather;
@@ -27,7 +31,10 @@ async function fetchWeather<T>(url: string): Promise<FetchResult<T>> {
     }
     return { ok: true, data: data as T };
   } catch (e: Error | unknown) {
-    return { ok: false, error: (e instanceof Error && e.message) || "Network error" };
+    return {
+      ok: false,
+      error: (e instanceof Error && e.message) || "Network error",
+    };
   }
 }
 
@@ -100,8 +107,8 @@ export async function fetchCombined(
         date,
         avgtemp: v?.avgtemp ?? 0,
         precip: v?.hourly?.[12]?.precip ?? 0,
-        description: v?.hourly?.[12]?.weather_descriptions?.[0] ?? '',
-        icon: v?.hourly?.[12]?.weather_icons?.[0] ?? '',
+        description: v?.hourly?.[12]?.weather_descriptions?.[0] ?? "",
+        icon: v?.hourly?.[12]?.weather_icons?.[0] ?? "",
         wind: v?.hourly?.[12]?.wind_speed ?? 0,
         pressure: v?.hourly?.[12]?.pressure ?? 0,
       });
@@ -131,14 +138,27 @@ export async function fetchCombined(
           date,
           avgtemp: v?.avgtemp ?? 0,
           precip: v?.hourly?.[12]?.precip ?? 0,
-          description: v?.hourly?.[12]?.weather_descriptions?.[0] ?? '',
-          icon: v?.hourly?.[12]?.weather_icons?.[0] ?? '',
+          description: v?.hourly?.[12]?.weather_descriptions?.[0] ?? "",
+          icon: v?.hourly?.[12]?.weather_icons?.[0] ?? "",
           wind: v?.hourly?.[12]?.wind_speed ?? 0,
           pressure: v?.hourly?.[12]?.pressure ?? 0,
         });
       }
     });
   }
+
+  // Fallback: For errors
+  if (!cur.ok) {
+    return { ok: false, error: cur.error || "Current weather API failed" };
+  }
+
+  // Commenting out to allow partial results as the api key I'm using doesn't support hist/forecast
+  // if (!hist.ok) {
+  //   return { ok: false, error: hist.error || "Historical weather API failed" };
+  // }
+  // if (!fc.ok) {
+  //   return { ok: false, error: fc.error || "Forecast weather API failed" };
+  // }
 
   // Fallback: For keys where hist/forecast aren't available, synthesize using current
   if (days.length === 1) {
@@ -155,11 +175,10 @@ export async function fetchCombined(
     [-3, -2, -1, 1, 2, 3].forEach((k) => {
       const synthesizedDay = synth(k);
       if (!days.some((day) => day.date === synthesizedDay.date)) {
-      days.push(synthesizedDay);
+        days.push(synthesizedDay);
       }
     });
   }
-
 
   const locationName =
     cur.ok && cur.data?.location
@@ -174,7 +193,6 @@ export async function fetchCombined(
     current: cur.ok ? cur.data?.current ?? null : null,
     days: days.sort((a, b) => a.date.localeCompare(b.date)),
   };
-
 
   // Cache and return
   setCache(cacheKey, combined);
